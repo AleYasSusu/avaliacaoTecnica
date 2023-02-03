@@ -2,14 +2,11 @@ package com.aledev.avaliacaotecnica.service.impl;
 
 
 import com.aledev.avaliacaotecnica.entity.Session;
-import com.aledev.avaliacaotecnica.entity.Staff;
 import com.aledev.avaliacaotecnica.entity.Voto;
 import com.aledev.avaliacaotecnica.exception.*;
 import com.aledev.avaliacaotecnica.model.ValidationCpfDto;
-import com.aledev.avaliacaotecnica.model.VotingDto;
 import com.aledev.avaliacaotecnica.repository.VoteRepository;
 import com.aledev.avaliacaotecnica.service.SessionService;
-import com.aledev.avaliacaotecnica.service.VotingService;
 import com.aledev.avaliacaotecnica.service.VotoService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -26,17 +23,16 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class VotoServiceImpl implements VotoService {
 
-	private static final String CPF_UNABLE_TO_VOTE = "UNABLE_TO_VOTE";
+	private static final String CPF_NOT_ABLE_TO_VOTE = "UNABLE_TO_VOTE";
 
 	@Value("${app.integracao.cpf.url}")
 	private String urlCpfValidator;
 
 	private final VoteRepository votoRepository;
-	private final RestTemplate restTemplate;
-	//private final KafkaSender kafkaSender;
-	private final SessionService sessionService;
-	private final VotingService votingService;
 
+	private final RestTemplate restTemplate;
+
+	private final SessionService sessionService;
 
 	@Override
 	public Voto findById(Long id) {
@@ -46,8 +42,9 @@ public class VotoServiceImpl implements VotoService {
 		}
 		return findById.get();
 	}
+
 	@Override
-	public Voto createVoto(Long staffId, Long sessionId, Voto voto) {
+	public Voto createVote(Long staffId, Long sessionId, Voto voto) {
 		var session = sessionService.findByIdAndStaffId(sessionId, staffId);
 		if (!staffId.equals(session.getStaff().getId())) {
 			throw new InvalidSessionException();
@@ -65,31 +62,25 @@ public class VotoServiceImpl implements VotoService {
 
 		LocalDateTime dataLimite = session.getDataInicio().plusMinutes(session.getMinutosValidade());
 		if (LocalDateTime.now().isAfter(dataLimite)) {
-			//sendMessage(voto.getStaff());
+
 			throw new SessionTimeOutException();
 		}
-
 		cpfAbleToVote(voto);
-		votoAlreadyExists(voto);
+		voteAlreadyExists(voto);
 	}
 
-	private void votoAlreadyExists(final Voto voto) {
-		var votoByCpfAndPauta = votoRepository.findByCpfAndStaffId(voto.getCpf(), voto.getStaff().getId());
+	private void voteAlreadyExists(final Voto voto) {
+		var voteByCpfAndStaff = votoRepository.findByCpfAndStaffId(voto.getCpf(), voto.getStaff().getId());
 
-		if (votoByCpfAndPauta.isPresent()) {
+		if (voteByCpfAndStaff.isPresent()) {
 			throw new VoteAlreadyExistsException();
 		}
-	}
-
-	private void sendMessage(Staff staff) {
-		VotingDto votacaoStaff = votingService.buildVotingStaff(staff.getId());
-		//kafkaSender.sendMessage(votacaoPauta);
 	}
 
 	private void cpfAbleToVote(final Voto voto) {
 		ResponseEntity<ValidationCpfDto> cpfValidation = getCpfValidation(voto);
 		if (HttpStatus.OK.equals(cpfValidation.getStatusCode())) {
-			if (CPF_UNABLE_TO_VOTE.equalsIgnoreCase(cpfValidation.getBody().getStatus())) {
+			if (CPF_NOT_ABLE_TO_VOTE.equalsIgnoreCase(cpfValidation.getBody().getStatus())) {
 				throw new CpfUnableException();
 			}
 		} else {
@@ -104,6 +95,7 @@ public class VotoServiceImpl implements VotoService {
 		return restTemplate.exchange(urlCpfValidator.concat("/").concat(voto.getCpf()), HttpMethod.GET, entity,
 				ValidationCpfDto.class);
 	}
+
 	@Override
 	public List<Voto> findAll() {
 		return votoRepository.findAll();
@@ -119,13 +111,13 @@ public class VotoServiceImpl implements VotoService {
 	}
 
 	@Override
-	public void deleteByPautaId(Long id) {
+	public void deleteByStaffId(Long id) {
 		Optional<List<Voto>> votos = votoRepository.findByStaffId(id);
 		votos.ifPresent(voto -> voto.forEach(votoRepository::delete));
 	}
 
 	@Override
-	public List<Voto> findVotosByPautaId(Long id) {
+	public List<Voto> findVotesByStaffId(Long id) {
 		var findByStaffId = votoRepository.findByStaffId(id);
 
 		if (!findByStaffId.isPresent()) {
@@ -134,5 +126,4 @@ public class VotoServiceImpl implements VotoService {
 
 		return findByStaffId.get();
 	}
-
 }

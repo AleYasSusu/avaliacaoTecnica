@@ -25,7 +25,7 @@ public class VoteControllerImpl implements VoteController {
     @PostMapping("v1/tariffs/{staffId}/sessions/{sessionId}/votes")
     @Override
     public Voto createVoto(Long idPauta, Long idSessao, Voto voto) {
-        return votoService.createVoto(idPauta, idSessao, voto);
+        return votoService.createVote(idPauta, idSessao, voto);
     }
 
     @GetMapping("v1/tariffs/sessions/votes/{id}")
@@ -38,7 +38,7 @@ public class VoteControllerImpl implements VoteController {
     @Override
     public List<Voto> findVotoBySessaoId(Long id) {
 
-        return votoService.findVotosByPautaId(id);
+        return votoService.findVotesByStaffId(id);
     }
 
     @DeleteMapping("v1/tariffs/sessions/votes/{id}")

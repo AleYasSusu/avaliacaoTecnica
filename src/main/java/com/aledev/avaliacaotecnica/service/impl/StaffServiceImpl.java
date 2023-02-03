@@ -38,7 +38,7 @@ public class StaffServiceImpl implements StaffService {
         }
         staffRepository.delete(staffById.get());
         sessaoService.deleteSessionById(id);
-        votoService.deleteByPautaId(id);
+        votoService.deleteByStaffId(id);
     }
 
     @Override
