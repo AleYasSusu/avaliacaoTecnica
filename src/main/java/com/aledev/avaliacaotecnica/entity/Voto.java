@@ -8,13 +8,12 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 
-@Entity
+@Entity(name = "tbl_vote")
 @Data
 @EqualsAndHashCode
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "VOTO")
 public class Voto implements Serializable {
     @Id
     @SequenceGenerator(name = "sessao_seq", sequenceName = "sessao_seq", allocationSize = 1)

@@ -1,11 +1,10 @@
 package com.aledev.avaliacaotecnica.service.impl;
 
 import com.aledev.avaliacaotecnica.entity.Session;
-import com.aledev.avaliacaotecnica.exception.StaffNotFoundException;
 import com.aledev.avaliacaotecnica.exception.SessionNotFoundException;
-import com.aledev.avaliacaotecnica.repository.StaffRepository;
 import com.aledev.avaliacaotecnica.repository.SessionRepository;
 import com.aledev.avaliacaotecnica.service.SessionService;
+import com.aledev.avaliacaotecnica.service.StaffService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -17,20 +16,20 @@ import java.util.List;
 public class SessionServiceImpl implements SessionService {
 
     private final SessionRepository sessionRepository;
-    private final StaffRepository staffRepository;
+
+    private final StaffService staffService;
 
 
     @Override
     public List<Session> findAll() {
         return sessionRepository.findAll();
     }
+
     @Override
     public Session createSession(Long id, Session sessao){
-        var findById = staffRepository.findById(id);
-        if(!findById.isPresent()){
-            throw new StaffNotFoundException();
-        }
-        sessao.setStaff(findById.get());
+        var findStaffById = staffService.findById(id);
+
+        sessao.setStaff(findStaffById);
         return save(sessao);
     }
 
@@ -41,10 +40,10 @@ public class SessionServiceImpl implements SessionService {
         if (session.getMinutosValidade() == null) {
             session.setMinutosValidade(1L);
         }
-
         return sessionRepository.save(session);
 
     }
+
     @Override
     public void deleteSessionById(Long id) {
         var sessionById = sessionRepository.findById(id);
@@ -54,20 +53,20 @@ public class SessionServiceImpl implements SessionService {
         sessionRepository.delete(sessionById.get());
     }
 
-    void deleteByPautaId(Long id) {
+    void deleteByStaffId(Long id) {
         var sessions = sessionRepository.findByStaffId(id);
         sessions.ifPresent(sessaoList -> sessaoList.forEach(sessionRepository::delete));
     }
+
     @Override
-    public Session findById(Long id) {
-        var findById = sessionRepository.findById(id);
-        if(!findById.isPresent()){
-            throw new SessionNotFoundException();
-        }
-        return findById.get();
+    public Session findSessionById(Long id) {
+        var findById = sessionRepository.findById(id)
+                .orElseThrow(() -> new SessionNotFoundException());
+        return findById;
     }
+
     @Override
-    public Session findByIdAndStaffId(Long idSessao, Long pautaId) {
+    public Session findByIdSessionAndStaffId(Long idSessao, Long pautaId) {
         var findByIdAndPautaId = sessionRepository.findByIdAndStaffId(idSessao, pautaId);
         if(!findByIdAndPautaId.isPresent()){
             throw new SessionNotFoundException();

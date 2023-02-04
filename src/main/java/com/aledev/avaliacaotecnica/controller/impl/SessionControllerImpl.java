@@ -24,20 +24,20 @@ public class SessionControllerImpl implements SessionController {
 
     @Override
     @PostMapping("v1/pautas/{id}/sessoes")
-    public Session createSession(@PathVariable Long id, Session session) {
+    public Session createSession(Long id, Session session) {
         return sessionService.createSession(id, session);
     }
 
     @Override
     @GetMapping("v1/pautas/sessoes/{id}")
     public Session findSessaoById(@PathVariable Long id) {
-        return sessionService.findById(id);
+        return sessionService.findSessionById(id);
     }
 
     @Override
     @GetMapping("v1/pautas/{id}/sessoes/{idSessao}")
     public Session findSessaoByIdAndStaffId(Long id, Long idSessao) {
-        return sessionService.findByIdAndStaffId(idSessao, id);
+        return sessionService.findByIdSessionAndStaffId(idSessao, id);
     }
 
 

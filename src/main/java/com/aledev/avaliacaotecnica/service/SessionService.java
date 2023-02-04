@@ -11,7 +11,7 @@ public interface SessionService {
 
     void deleteSessionById(Long id);
 
-    Session findById(Long id);
+    Session findSessionById(Long id);
 
-    Session findByIdAndStaffId(Long idSessao, Long pautaId);
+    Session findByIdSessionAndStaffId(Long idSessao, Long pautaId);
 }

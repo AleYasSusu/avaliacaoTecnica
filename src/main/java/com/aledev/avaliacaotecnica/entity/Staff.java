@@ -1,10 +1,6 @@
 package com.aledev.avaliacaotecnica.entity;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -14,8 +10,9 @@ import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import java.io.Serializable;
 
-@Data
 @Entity
+@Getter
+@Setter
 @EqualsAndHashCode
 @Builder
 @NoArgsConstructor

@@ -45,7 +45,7 @@ public class VotoServiceImpl implements VotoService {
 
 	@Override
 	public Voto createVote(Long staffId, Long sessionId, Voto voto) {
-		var session = sessionService.findByIdAndStaffId(sessionId, staffId);
+		var session = sessionService.findByIdSessionAndStaffId(sessionId, staffId);
 		if (!staffId.equals(session.getStaff().getId())) {
 			throw new InvalidSessionException();
 		}

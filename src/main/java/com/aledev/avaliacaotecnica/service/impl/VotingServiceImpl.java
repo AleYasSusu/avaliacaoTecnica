@@ -23,7 +23,7 @@ public class VotingServiceImpl implements VotingService {
     private final VoteRepository voteRepository;
 
     private final SessionRepository sessaoRepository;
-    //private final KafkaSender kafkaSender;
+
 
     @Override
     public Voto save(final Voto voto) {
