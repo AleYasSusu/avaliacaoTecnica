@@ -17,31 +17,31 @@ public class SessionControllerImpl implements SessionController {
     private final SessionService sessionService;
 
     @Override
-    @GetMapping("v1/pautas/sessoes")
+    @GetMapping("v1/staffs/sessions")
     public List<Session> all() {
         return sessionService.findAll();
     }
 
     @Override
-    @PostMapping("v1/pautas/{id}/sessoes")
+    @PostMapping("v1/staffs/{id}/sessions")
     public Session createSession(Long id, Session session) {
         return sessionService.createSession(id, session);
     }
 
     @Override
-    @GetMapping("v1/pautas/sessoes/{id}")
+    @GetMapping("v1/staffs/sessions/{id}")
     public Session findSessaoById(@PathVariable Long id) {
         return sessionService.findSessionById(id);
     }
 
     @Override
-    @GetMapping("v1/pautas/{id}/sessoes/{idSessao}")
+    @GetMapping("v1/staffs/{id}/sessions/{idSessao}")
     public Session findSessaoByIdAndStaffId(Long id, Long idSessao) {
         return sessionService.findByIdSessionAndStaffId(idSessao, id);
     }
 
 
-    @DeleteMapping("v1/pautas/sessoes/{id}")
+    @DeleteMapping("v1/staffs/sessions/{id}")
     public void delete(Long id) {
         sessionService.deleteSessionById(id);
     }

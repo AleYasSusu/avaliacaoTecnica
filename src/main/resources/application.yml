@@ -1,0 +1,22 @@
+spring:
+  jpa:
+    database: POSTGRESQL
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        temp:
+        use_jdbc_metadata_defaults: false
+    database-platform : org.hibernate.dialect.PostgreSQLDialect
+
+  datasource:
+    url: jdbc:postgresql://localhost:5432/user
+    driverClassName : org.postgresql.Driver
+    username: user
+    password: pass
+    hikari:
+      connection-timeout: 30000
+      maximum-pool-size: 1
+
+    maxActive: 1
+  server:
+    port: 8085

@@ -6,19 +6,21 @@ import com.aledev.avaliacaotecnica.repository.StaffRepository;
 import com.aledev.avaliacaotecnica.service.SessionService;
 import com.aledev.avaliacaotecnica.service.StaffService;
 import com.aledev.avaliacaotecnica.service.VotoService;
-import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 @Service
-@RequiredArgsConstructor
+
 public class StaffServiceImpl implements StaffService {
 
-    private final StaffRepository staffRepository;
-    private final SessionService sessaoService;
-    private final VotoService votoService;
-
+    @Autowired
+    private StaffRepository staffRepository;
+    @Autowired
+    private SessionService sessionService;
+    @Autowired
+    private VotoService votoService;
 
     @Override
     public List<Staff> findAll() {
@@ -32,21 +34,16 @@ public class StaffServiceImpl implements StaffService {
 
     @Override
     public void delete(Long id) {
-        var staffById = staffRepository.findById(id);
-        if (!staffById.isPresent()) {
-            throw new StaffNotFoundException();
-        }
-        staffRepository.delete(staffById.get());
-        sessaoService.deleteSessionById(id);
+        var staffById = staffRepository.findById(id)
+                .orElseThrow(StaffNotFoundException::new);
+        staffRepository.delete(staffById);
+        sessionService.deleteSessionById(id);
         votoService.deleteByStaffId(id);
     }
 
     @Override
     public Staff findById(Long id) {
-       var findById = staffRepository.findById(id);
-        if (!findById.isPresent()) {
-            throw new StaffNotFoundException();
-        }
-        return findById.get();
+        return staffRepository.findById(id)
+                .orElseThrow(StaffNotFoundException::new);
     }
 }

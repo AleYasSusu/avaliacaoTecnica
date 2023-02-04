@@ -9,9 +9,9 @@
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
     <groupId>com.aledev</groupId>
-    <artifactId>avaliacao-tecnica</artifactId>
+    <artifactId>avaliacao</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <name>avaliacao-tecnica</name>
+    <name>avaliacao</name>
     <description>avaliacao-tecnica</description>
     <properties>
         <java.version>11</java.version>
@@ -25,7 +25,6 @@
         <dependency>
             <groupId>org.postgresql</groupId>
             <artifactId>postgresql</artifactId>
-            <version>42.2.25</version>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -53,12 +52,11 @@
             <version>2.9.2</version>
         </dependency>
 
+        <!--postgresql-->
         <dependency>
-            <groupId>com.h2database</groupId>
-            <artifactId>h2</artifactId>
-            <scope>runtime</scope>
+            <groupId>org.postgresql</groupId>
+            <artifactId>postgresql</artifactId>
         </dependency>
-
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>

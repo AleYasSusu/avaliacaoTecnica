@@ -1,10 +1,14 @@
 package com.aledev.avaliacaotecnica.model;
 
-import lombok.Data;
+import lombok.*;
 
 import java.io.Serializable;
 
-@Data
+@Getter
+@Setter
+@AllArgsConstructor
+@NoArgsConstructor
+@Builder
 public class ValidationCpfDto implements Serializable {
 	private static final long serialVersionUID = 633031857370234293L;
 	

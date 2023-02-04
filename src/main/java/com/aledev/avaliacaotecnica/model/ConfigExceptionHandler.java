@@ -4,7 +4,6 @@ package com.aledev.avaliacaotecnica.model;
 import com.aledev.avaliacaotecnica.exception.BusinessException;
 import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.MessageSource;
@@ -14,6 +13,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.ObjectError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+
 import java.util.List;
 import java.util.Locale;
 import java.util.stream.Collectors;
@@ -21,12 +21,11 @@ import java.util.stream.Stream;
 
 @RestControllerAdvice
 @RequiredArgsConstructor
-
-public class ExceptionHandler {
+public class ConfigExceptionHandler {
 
 	private static final String NO_MESSAGE_AVAILABLE = "Mensagem para este erro não encontrada";
 	private final MessageSource apiErrorMessageSource;
-	private static final Logger LOGGER = LoggerFactory.getLogger(ExceptionHandler.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(ConfigExceptionHandler.class);
 	
 	@org.springframework.web.bind.annotation.ExceptionHandler(MethodArgumentNotValidException.class)
 	public ResponseEntity<ErrorDto> handleNotValidException(MethodArgumentNotValidException exception, Locale locale){

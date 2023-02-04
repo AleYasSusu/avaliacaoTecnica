@@ -8,8 +8,9 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 
-@Entity(name = "tbl_vote")
-@Data
+@Entity(name = "tbl_voto")
+@Getter
+@Setter
 @EqualsAndHashCode
 @Builder
 @NoArgsConstructor

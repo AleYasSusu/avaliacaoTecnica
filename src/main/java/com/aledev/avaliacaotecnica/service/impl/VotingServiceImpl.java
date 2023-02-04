@@ -1,11 +1,10 @@
 package com.aledev.avaliacaotecnica.service.impl;
 
-
 import com.aledev.avaliacaotecnica.entity.Staff;
 import com.aledev.avaliacaotecnica.entity.Voto;
 import com.aledev.avaliacaotecnica.exception.BusinessException;
-import com.aledev.avaliacaotecnica.exception.VotingNotFoundException;
 import com.aledev.avaliacaotecnica.exception.VoteNotFoundException;
+import com.aledev.avaliacaotecnica.exception.VotingNotFoundException;
 import com.aledev.avaliacaotecnica.model.VotingDto;
 import com.aledev.avaliacaotecnica.repository.SessionRepository;
 import com.aledev.avaliacaotecnica.repository.VoteRepository;
@@ -14,7 +13,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -49,44 +47,36 @@ public class VotingServiceImpl implements VotingService {
 
     @Override
     public void delete(Voto voto) {
-        Optional<Voto> votoById = voteRepository.findById(voto.getId());
-        if (!votoById.isPresent()) {
-            throw new VoteNotFoundException();
-        }
-        voteRepository.delete(voto);
+        var votoById =
+                voteRepository.findById(voto.getId())
+                        .orElseThrow(VoteNotFoundException::new);
+        voteRepository.delete(votoById);
     }
+
     @Override
     public List<Voto> findVotosByPautaId(Long id) {
-        Optional<List<Voto>> findByPautaId = voteRepository.findByStaffId(id);
-
-        if (!findByPautaId.isPresent()) {
-            throw new VoteNotFoundException();
-        }
-
-        return findByPautaId.get();
+        return voteRepository.findByStaffId(id)
+                        .orElseThrow(VoteNotFoundException::new);
     }
+
     @Override
     public VotingDto getResultVotacao(Long id) {
-        VotingDto votacaoPauta = buildVotingStaff(id);
-        //kafkaSender.sendMessage(votacaoPauta);
-        return votacaoPauta;
+        return buildVotingStaff(id);
     }
 
     @Override
     public VotingDto buildVotingStaff(Long id) {
-        var votosByStaff = voteRepository.findByStaffId(id);
-        if (!votosByStaff.isPresent() || votosByStaff.get().isEmpty()) {
-            throw new VotingNotFoundException();
-        }
+        var votosByStaff =
+                voteRepository.findByStaffId(id)
+                        .orElseThrow(VotingNotFoundException::new);
 
-        Staff staff = votosByStaff.get().iterator().next().getStaff();
+        Staff staff = votosByStaff.iterator().next().getStaff();
 
         Long totalSessions = sessaoRepository.countByStaffId(staff.getId());
 
+        Integer total = votosByStaff.size();
 
-        Integer total = votosByStaff.get().size();
-
-        Integer totalVoteYes = (int) votosByStaff.get().stream().filter(voto -> Boolean.TRUE.equals(voto.getEscolha()))
+        Integer totalVoteYes = (int) votosByStaff.stream().filter(voto -> Boolean.TRUE.equals(voto.getEscolha()))
                 .count();
 
         Integer totalVoteNo = total - totalVoteYes;

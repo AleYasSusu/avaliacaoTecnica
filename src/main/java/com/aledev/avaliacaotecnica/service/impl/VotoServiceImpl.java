@@ -8,7 +8,7 @@ import com.aledev.avaliacaotecnica.model.ValidationCpfDto;
 import com.aledev.avaliacaotecnica.repository.VoteRepository;
 import com.aledev.avaliacaotecnica.service.SessionService;
 import com.aledev.avaliacaotecnica.service.VotoService;
-import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
@@ -17,113 +17,99 @@ import org.springframework.web.client.RestTemplate;
 import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 
 @Service
-@RequiredArgsConstructor
 public class VotoServiceImpl implements VotoService {
 
-	private static final String CPF_NOT_ABLE_TO_VOTE = "UNABLE_TO_VOTE";
+    private static final String CPF_NOT_ABLE_TO_VOTE = "UNABLE_TO_VOTE";
 
-	@Value("${app.integracao.cpf.url}")
-	private String urlCpfValidator;
+    @Value("${app.integracao.cpf.url}")
+    private String urlCpfValidator;
+    @Autowired
+    private VoteRepository votoRepository;
+    @Autowired
+    private RestTemplate restTemplate;
+    @Autowired
+    private SessionService sessionService;
 
-	private final VoteRepository votoRepository;
+    @Override
+    public Voto findById(Long id) {
+        var findById = votoRepository.findById(id)
+                .orElseThrow(() -> new VoteNotFoundException());
+        return findById;
+    }
 
-	private final RestTemplate restTemplate;
+    @Override
+    public Voto createVote(Long staffId, Long sessionId, Voto voto) {
+        var session = sessionService.findByIdSessionAndStaffId(sessionId, staffId);
+        if (!staffId.equals(session.getStaff().getId())) {
+            throw new InvalidSessionException();
+        }
+        voto.setStaff(session.getStaff());
+        return verifyAndSave(session, voto);
+    }
 
-	private final SessionService sessionService;
+    private Voto verifyAndSave(final Session session, final Voto voto) {
+        verifyVoto(session, voto);
+        return votoRepository.save(voto);
+    }
 
-	@Override
-	public Voto findById(Long id) {
-		Optional<Voto> findById = votoRepository.findById(id);
-		if(!findById.isPresent()){
-			throw new VoteNotFoundException();
-		}
-		return findById.get();
-	}
+    protected void verifyVoto(final Session session, final Voto voto) {
 
-	@Override
-	public Voto createVote(Long staffId, Long sessionId, Voto voto) {
-		var session = sessionService.findByIdSessionAndStaffId(sessionId, staffId);
-		if (!staffId.equals(session.getStaff().getId())) {
-			throw new InvalidSessionException();
-		}
-		voto.setStaff(session.getStaff());
-		return verifyAndSave(session, voto);
-	}
+        LocalDateTime dataLimite = session.getDataInicio().plusMinutes(session.getMinutosValidade());
+        if (LocalDateTime.now().isAfter(dataLimite)) {
+            throw new SessionTimeOutException();
+        }
+        cpfAbleToVote(voto);
+        voteAlreadyExists(voto);
+    }
 
-	private Voto verifyAndSave(final Session session, final Voto voto) {
-		verifyVoto(session, voto);
-		return votoRepository.save(voto);
-	}
+    private void voteAlreadyExists(final Voto voto) {
+        votoRepository.findByCpfAndStaffId(voto.getCpf(), voto.getStaff().getId())
+                .orElseThrow(VoteAlreadyExistsException::new);
+    }
 
-	protected void verifyVoto(final Session session, final Voto voto) {
+    private void cpfAbleToVote(final Voto voto) {
+        var cpfValidation = getCpfValidation(voto);
+        if (HttpStatus.OK.equals(cpfValidation.getStatusCode())) {
+            if (CPF_NOT_ABLE_TO_VOTE.equalsIgnoreCase(cpfValidation.getBody().getStatus())) {
+                throw new CpfUnableException();
+            }
+        } else {
+            throw new InvalidCpfException();
+        }
+    }
 
-		LocalDateTime dataLimite = session.getDataInicio().plusMinutes(session.getMinutosValidade());
-		if (LocalDateTime.now().isAfter(dataLimite)) {
+    private ResponseEntity<ValidationCpfDto> getCpfValidation(final Voto voto) {
+        HttpHeaders headers = new HttpHeaders();
+        headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+        HttpEntity<String> entity = new HttpEntity<>(headers);
+        return restTemplate.exchange(urlCpfValidator.concat("/").concat(voto.getCpf()), HttpMethod.GET, entity,
+                ValidationCpfDto.class);
+    }
 
-			throw new SessionTimeOutException();
-		}
-		cpfAbleToVote(voto);
-		voteAlreadyExists(voto);
-	}
+    @Override
+    public List<Voto> findAll() {
+        return votoRepository.findAll();
+    }
 
-	private void voteAlreadyExists(final Voto voto) {
-		var voteByCpfAndStaff = votoRepository.findByCpfAndStaffId(voto.getCpf(), voto.getStaff().getId());
+    @Override
+    public void delete(Long id) {
+        var votoById =
+                votoRepository.findById(id)
+                        .orElseThrow(VoteNotFoundException::new);
+        votoRepository.delete(votoById);
+    }
 
-		if (voteByCpfAndStaff.isPresent()) {
-			throw new VoteAlreadyExistsException();
-		}
-	}
+    @Override
+    public void deleteByStaffId(Long id) {
+        var votos = votoRepository.findByStaffId(id);
+        votos.ifPresent(voto -> voto.forEach(votoRepository::delete));
+    }
 
-	private void cpfAbleToVote(final Voto voto) {
-		ResponseEntity<ValidationCpfDto> cpfValidation = getCpfValidation(voto);
-		if (HttpStatus.OK.equals(cpfValidation.getStatusCode())) {
-			if (CPF_NOT_ABLE_TO_VOTE.equalsIgnoreCase(cpfValidation.getBody().getStatus())) {
-				throw new CpfUnableException();
-			}
-		} else {
-			throw new InvalidCpfException();
-		}
-	}
-
-	private ResponseEntity<ValidationCpfDto> getCpfValidation(final Voto voto) {
-		HttpHeaders headers = new HttpHeaders();
-		headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
-		HttpEntity<String> entity = new HttpEntity<>(headers);
-		return restTemplate.exchange(urlCpfValidator.concat("/").concat(voto.getCpf()), HttpMethod.GET, entity,
-				ValidationCpfDto.class);
-	}
-
-	@Override
-	public List<Voto> findAll() {
-		return votoRepository.findAll();
-	}
-
-	@Override
-	public void delete(Long id) {
-		Optional<Voto> votoById = votoRepository.findById(id);
-		if (!votoById.isPresent()) {
-			throw new VoteNotFoundException();
-		}
-		votoRepository.delete(votoById.get());
-	}
-
-	@Override
-	public void deleteByStaffId(Long id) {
-		Optional<List<Voto>> votos = votoRepository.findByStaffId(id);
-		votos.ifPresent(voto -> voto.forEach(votoRepository::delete));
-	}
-
-	@Override
-	public List<Voto> findVotesByStaffId(Long id) {
-		var findByStaffId = votoRepository.findByStaffId(id);
-
-		if (!findByStaffId.isPresent()) {
-			throw new VoteNotFoundException();
-		}
-
-		return findByStaffId.get();
-	}
+    @Override
+    public List<Voto> findVotesByStaffId(Long id) {
+        return votoRepository.findByStaffId(id)
+                        .orElseThrow(VoteNotFoundException::new);
+    }
 }
