@@ -7,9 +7,6 @@ services:
       dockerfile: Dockerfile
     ports:
       - "8085:8085"
-    depends_on:
-      avaliacaodb:
-        condition: service_healthy
     environment:
       - DATABASE_URL= votacao-rds.ccgokeix6ea5.us-east-1.rds.amazonaws.com
       - DATABASE_NAME = votacaodb
