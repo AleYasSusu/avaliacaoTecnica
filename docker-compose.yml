@@ -1,0 +1,15 @@
+version: '3'
+
+services:
+  avaliacao-api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8085:8085"
+    environment:
+      - DATABASE_URL=votacao-rds.ccgokeix6ea5.us-east-1.rds.amazonaws.com
+      - DATABASE_NAME=votacaodb
+      - DATABASE_USERNAME=postgres
+      - DATABASE_PASSWORD=28032017
+      - SPRING_JPA_HIBERNATE_DDL_AUTO=update
