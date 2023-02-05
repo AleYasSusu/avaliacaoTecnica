@@ -21,8 +21,4 @@ spring:
   server:
     port: 8085
 
-    DATABASE_URL= jdbc:postgresql://avaliacaodb:5432/user
-    DATABASE_NAME
-    - DATABASE_USERNAME=user
-    - DATABASE_PASSWORD=pass
 
