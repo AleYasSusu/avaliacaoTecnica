@@ -16,32 +16,32 @@ public class VoteControllerImpl implements VoteController {
 
     private final VotoService votoService;
 
-    @GetMapping("v1/tariffs/sessions/votes")
+    @GetMapping("v1/staffs/sessions/votes")
     @Override
     public List<Voto> all() {
         return votoService.findAll();
     }
 
-    @PostMapping("v1/tariffs/{staffId}/sessions/{sessionId}/votes")
+    @PostMapping("v1/staffs/{staffId}/sessions/{sessionId}/votes")
     @Override
     public Voto createVoto(Long idPauta, Long idSessao, Voto voto) {
         return votoService.createVote(idPauta, idSessao, voto);
     }
 
-    @GetMapping("v1/tariffs/sessions/votes/{id}")
+    @GetMapping("v1/staffs/sessions/votes/{id}")
     @Override
     public Voto findVotoById(Long id) {
         return votoService.findById(id);
     }
 
-    @GetMapping("v1/tariffs/{id}/sessions/votes")
+    @GetMapping("v1/staffs/{id}/sessions/votes")
     @Override
     public List<Voto> findVotoBySessaoId(Long id) {
 
         return votoService.findVotesByStaffId(id);
     }
 
-    @DeleteMapping("v1/tariffs/sessions/votes/{id}")
+    @DeleteMapping("v1/staffs/sessions/votes/{id}")
     @Override
     public void delete(Long id) {
         votoService.delete(id);

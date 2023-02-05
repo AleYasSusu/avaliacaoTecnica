@@ -23,7 +23,7 @@ public class StaffControllerImpl implements StaffController {
 
     @Override
     @PostMapping("v1/staffs")
-    public Staff create(@RequestBody Staff staff) {
+    public Staff create(Staff staff) {
         return staffService.save(staff);
     }
 

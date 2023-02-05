@@ -9,10 +9,10 @@ spring:
     database-platform : org.hibernate.dialect.PostgreSQLDialect
 
   datasource:
-    url: jdbc:postgresql://localhost:5432/user
+    url: jdbc:postgresql://${DATABASE_URL}/${DATABASE_NAME}
     driverClassName : org.postgresql.Driver
-    username: user
-    password: pass
+    username: ${DATABASE_USERNAME}
+    password: ${DATABASE_PASSWORD}
     hikari:
       connection-timeout: 30000
       maximum-pool-size: 1
@@ -20,3 +20,9 @@ spring:
     maxActive: 1
   server:
     port: 8085
+
+    DATABASE_URL= jdbc:postgresql://avaliacaodb:5432/user
+    DATABASE_NAME
+    - DATABASE_USERNAME=user
+    - DATABASE_PASSWORD=pass
+

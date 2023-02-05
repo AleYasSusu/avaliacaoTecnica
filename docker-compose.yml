@@ -12,32 +12,9 @@ services:
       avaliacaodb:
         condition: service_healthy
     environment:
-      - SPRING_DATASOURCE_URL= jdbc:postgresql://avaliacaodb:5432/user
-      - SPRING_DATASOURCE_USERNAME=user
-      - SPRING_DATASOURCE_PASSWORD=pass
-      - SPRING_JPA_HIBERNATE_DDL_AUTO=update
-  avaliacaodb:
-    image: postgres:13.1
-    healthcheck:
-      test: [ "CMD", "pg_isready", "-q", "-d", "postgres", "-U", "user" ]
-      timeout: 45s
-      interval: 10s
-      retries: 10
-    restart: always
-    environment:
-      - POSTGRES_USER=user
-      - POSTGRES_PASSWORD=pass
-      - APP_DB_USER=usuario
-      - APP_DB_PASS=senha
-      - APP_DB_NAME=avaliacao
-    volumes:
-      - ./db:/docker-entrypoint-initdb.d/
-    ports:
-      - "5432:5432"
+      - DATABASE_URL= votacao-rds.ccgokeix6ea5.us-east-1.rds.amazonaws.com
+      - DATABASE_NAME = votacaodb
+      - DATABASE_USERNAME=postgres
+      - DATABASE_PASSWORD=28032017
 
-  adminer:
-    image: adminer
-    restart: always
-    ports:
-      - "8383:8080"
 
