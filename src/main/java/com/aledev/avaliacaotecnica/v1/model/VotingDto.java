@@ -12,6 +12,7 @@ import java.io.Serializable;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
+@EqualsAndHashCode
 public class VotingDto implements Serializable {
 	private static final long serialVersionUID = -6641295645471857940L;
 	

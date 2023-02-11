@@ -1,4 +1,4 @@
-package com.aledev.avaliacaotecnica.service;
+package com.aledev.avaliacaotecnica.v1.service.impl;
 
 
 import com.aledev.avaliacaotecnica.v1.entity.Session;
@@ -12,7 +12,6 @@ import com.aledev.avaliacaotecnica.v1.model.VotingDto;
 import com.aledev.avaliacaotecnica.v1.repository.VoteRepository;
 import com.aledev.avaliacaotecnica.v1.service.SessionService;
 import com.aledev.avaliacaotecnica.v1.service.VotingService;
-import com.aledev.avaliacaotecnica.v1.service.impl.VoteServiceImpl;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.InjectMocks;
